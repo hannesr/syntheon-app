@@ -6,8 +6,23 @@ class RemoteConnection {
 
   static instance = null;
 
+  static getInstance() {
+    console.log("... RemoteConnection.getInstance");
+    if (!RemoteConnection.instance) {
+      if (__DEV__)
+        RemoteConnection.instance = new FakeConnection();
+      else
+        RemoteConnection.instance = new BleConnection();
+    }
+    return RemoteConnection.instance;
+  }
+
+}
+
+class BleConnection {
+
   constructor() {
-    console.log("... RemoteConnection.constructor");
+    console.log("... BleConnection: constructor");
     this.bleManager = new BleManager();
     this.device = null;
     this.SERVICE  = makeUuid('989e');
@@ -18,15 +33,8 @@ class RemoteConnection {
     this.transaction = null;
   }
 
-  static getInstance() {
-    console.log("... RemoteConnection.getInstance");
-    if (!RemoteConnection.instance) {
-      RemoteConnection.instance = new RemoteConnection();
-    }
-    return RemoteConnection.instance;
-  }
-
   startScan(success, failure) {
+    console.log("... BleConnection: startScan");
     this.bleManager.startDeviceScan(null, null, (e,d)=>{
       if (d) {
         const device = {id:d.id, name:(d.name || d.id)};
@@ -38,11 +46,12 @@ class RemoteConnection {
   }
 
   stopScan() {
+    console.log("... BleConnection: stopScan");
     this.bleManager.stopDeviceScan();
   }
 
   async connect(device) {
-    console.log("... RemoteConnection: connecting to "+device.id);
+    console.log("... BleConnection: connecting to "+device.id);
     this.device = await this.bleManager.connectToDevice(device.id);
     await this.device.discoverAllServicesAndCharacteristics();
     //this.services = await this.device.services()
@@ -51,13 +60,14 @@ class RemoteConnection {
 
   async disconnect() {
     if (this.device) {
+      console.log("... BleConnection: disconnecting");
       await this.bleManager.cancelDeviceConnection(this.device.id);
       this.device = null;
     }
   }
 
   async getBankCs() {
-    console.log("... RemoteConnection.getBankCs");
+    console.log("... BleConnection.getBankCs");
     let characteristic = await this.bleManager.readCharacteristicForDevice(
       this.device.id, this.SERVICE, this.BANK_CS, this.transact());
     this.transaction = null;
@@ -66,7 +76,7 @@ class RemoteConnection {
   }
 
   async getBank() {
-    console.log("... RemoteConnection.getBank");
+    console.log("... BleConnection.getBank");
     let characteristic = await this.bleManager.readCharacteristicForDevice(
       this.device.id, this.SERVICE, this.BANK, this.transact());
     this.transaction = null;
@@ -75,7 +85,7 @@ class RemoteConnection {
   }
 
   async getPreset() {
-    console.log("... RemoteConnection.getPreset");
+    console.log("... BleConnection.getPreset");
     let characteristic = await this.bleManager.readCharacteristicForDevice(
       this.device.id, this.SERVICE, this.PRESET, this.transact());
     this.transaction = null;
@@ -84,7 +94,7 @@ class RemoteConnection {
   }
 
   async setPreset(preset) {
-    console.log("... RemoteConnection.setPreset "+preset);
+    console.log("... BleConnection.setPreset "+preset);
     const buf = Buffer.from([preset]);
     await this.bleManager.writeCharacteristicWithResponseForDevice(
       this.device.id, this.SERVICE, this.PRESET, buf.toString('base64'), this.transact());
@@ -109,5 +119,61 @@ function makeUuid(uuid) {
   // TODO - this only works with my own test device...
   return '0000xxxx-0000-1000-8000-00805f9b34fb'.replace('xxxx', uuid);
 }
+
+class FakeConnection {
+
+  constructor() {
+    console.log("... FakeConnection.constructor");
+    this.device = null;
+    this.preset = 0;
+  }
+
+  startScan(success, failure) {
+    console.log("... FakeConnection: start scan");
+    const device = {id:"47283717", name:"Test device"};
+    success(device);
+  }
+
+  stopScan() {
+    console.log("... FakeConnection: stop scan");
+  }
+
+  connect(device) {
+    console.log("... FakeConnection: connect "+device.id);
+    this.device = device;
+  }
+
+  disconnect() {
+    if (this.device) {
+      console.log("... FakeConnection: disconnect");
+      this.device = null;
+    }
+  }
+
+  getBankCs() {
+    console.log("... FakeConnection: getBankCs");
+    return JSON.stringify(this.getBank()).length.toString()
+  }
+
+  getBank() {
+    console.log("... FakeConnection: getBank");
+    return [null, "Buzz", "Snore", "Distort", "Noise"];
+  }
+
+  getPreset() {
+    console.log("... FakeConnection: getPreset");
+    return this.preset;
+  }
+
+  setPreset(preset) {
+    console.log("... FakeConnection: setPreset");
+    this.preset = preset;
+  }
+
+  cancel() {
+  }
+
+}
+
 
 export default RemoteConnection;
