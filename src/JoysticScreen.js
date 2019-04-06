@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {View, Text, StatusBar, FlatList, StyleSheet} from 'react-native';
 
 import Message from './Message'
+import Joystic from './Joystic'
 import RemoteConnection from './RemoteConnection';
 
 class JoysticScreen extends React.Component {
@@ -29,10 +30,10 @@ class JoysticScreen extends React.Component {
       <View style={styles.main}>
         <StatusBar backgroundColor="#145f9a" barStyle="light-content" />
         <Message text={this.state.message} />
-        <Text>
-          This screen will have some pretty
-          cool effects but not done yet
-        </Text>
+        <Joystic
+          x={50} y={50}
+          onValueChanged={(x,y) => {this.onEffect(x,y)}}
+        />
       </View>
     );
   }
@@ -41,11 +42,22 @@ class JoysticScreen extends React.Component {
     console.log("... JoysticScreen.onInit");
   }
 
+  onEffect(val1, val2) {
+    console.log(`... JoysticScreen.onEffect ${val1}, ${val2}`);
+  }
 }
 
 const styles = StyleSheet.create({
   main: {
     marginBottom: 46
+  },
+  joystic: {
+    height: 100,
+    borderRadius: 200,
+    backgroundColor: '#2196F3',
+    marginTop: 8,
+    marginLeft: 8,
+    marginRight: 8
   }
 });
 
