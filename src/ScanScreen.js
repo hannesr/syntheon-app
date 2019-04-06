@@ -77,8 +77,6 @@ class ScanScreen extends React.Component {
       console.log("... ScanScreen: connection failed "+err);
       this.setState({message: "Connection failed: "+err, scanning: false});
     }
-
-    // TODO - what happens when we return to scan screen?
   }
 
 }
