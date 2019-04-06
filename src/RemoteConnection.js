@@ -101,6 +101,16 @@ class BleConnection {
     this.transaction = null;
   }
 
+  getEffects() {
+    console.log("... BleConnection: getEffects");
+    // TODO
+  }
+
+  setEffect(key, value) {
+    console.log("... BleConnection: setEffect");
+    // TODO
+  }
+
   transact() {
     this.counter += 1;
     this.transaction = "syn-"+this.counter;
@@ -168,6 +178,15 @@ class FakeConnection {
   setPreset(preset) {
     console.log("... FakeConnection: setPreset");
     this.preset = preset;
+  }
+
+  getEffects() {
+    console.log("... FakeConnection: getEffects");
+    return ["FX%", "Distort%", "Reverb depth", "Arpie freq"];
+  }
+
+  setEffect(key, value) {
+    console.log("... FakeConnection: setEffect");
   }
 
   cancel() {

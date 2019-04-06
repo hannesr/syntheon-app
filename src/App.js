@@ -4,11 +4,13 @@ import {createStackNavigator, createBottomTabNavigator, createAppContainer} from
 
 import ScanScreen from './ScanScreen';
 import BankScreen from './BankScreen';
+import TuningScreen from './TuningScreen';
 import JoysticScreen from './JoysticScreen';
 
 const MainNavigator = createBottomTabNavigator(
   {
     Bank: BankScreen,
+    Tuning: TuningScreen,
     Joystic: JoysticScreen
   }, {
     initialRouteName: "Bank",
