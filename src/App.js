@@ -6,12 +6,14 @@ import ScanScreen from './ScanScreen';
 import BankScreen from './BankScreen';
 import TuningScreen from './TuningScreen';
 import JoysticScreen from './JoysticScreen';
+import SynthScreen from './SynthScreen';
 
 const MainNavigator = createBottomTabNavigator(
   {
     Bank: BankScreen,
     Tuning: TuningScreen,
-    Joystic: JoysticScreen
+    Joystic: JoysticScreen,
+    Synth: SynthScreen
   }, {
     initialRouteName: "Bank",
     defaultNavigationOptions: ({navigation}) => ({
