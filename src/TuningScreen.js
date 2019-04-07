@@ -61,7 +61,7 @@ class TuningScreen extends React.Component {
     this.timestamp = new Date();
 
     try {
-      let eff = await this.remote.getEffects();
+      let eff = await this.remote.getEffectsList();
       eff = eff.map((e,i) => ({id: i, title: e, value: i==0 ? 100 : 50}))
       this.setState({effects: eff})
       console.log(`... TuningScreen.onInit complete`);
@@ -76,7 +76,7 @@ class TuningScreen extends React.Component {
     let ts = new Date();
     if (ts - this.timestamp > 200 || force) {
       this.timestamp = ts;
-      this.remote.setEffect(key, value);
+      this.remote.setEffects(key, value);
     }
   }
 

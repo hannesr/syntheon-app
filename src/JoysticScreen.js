@@ -64,7 +64,7 @@ class JoysticScreen extends React.Component {
     this.timestamp = new Date();
 
     try {
-      let eff = await this.remote.getEffects();
+      let eff = await this.remote.getEffectsList();
       eff = eff.map((e,i) => ({id: i, title: e}))
       this.setState({effects: eff})
       console.log(`... JoysticScreen.onInit complete`);
