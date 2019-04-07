@@ -106,8 +106,8 @@ class BleConnection {
     // TODO
   }
 
-  setEffect(key, value) {
-    console.log("... BleConnection: setEffect");
+  setEffects() {
+    console.log("... BleConnection: setEffects "+arguments);
     // TODO
   }
 
@@ -185,8 +185,10 @@ class FakeConnection {
     return ["FX%", "Distort%", "Reverb depth", "Arpie freq"];
   }
 
-  setEffect(key, value) {
-    console.log("... FakeConnection: setEffect");
+  setEffects() {
+    for (let i=0; i+1<arguments.length; i+=2) {
+      console.log(`... FakeConnection: setEffects ${arguments[i]}, ${arguments[i+1]}`);
+    }
   }
 
   cancel() {

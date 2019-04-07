@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, StatusBar, FlatList, StyleSheet} from 'react-native';
+import {View, Text, StatusBar, Picker, StyleSheet} from 'react-native';
 
 import Message from './Message'
 import Joystic from './Joystic'
@@ -10,7 +10,7 @@ class JoysticScreen extends React.Component {
   constructor(props) {
     console.log("... JoysticScreen.constructor");
     super(props);
-    this.state = {message:null};
+    this.state = {message:null, initializing: false, effects: [], keys: [1, 2]};
     this.remote = RemoteConnection.getInstance();
   }
 
@@ -30,6 +30,10 @@ class JoysticScreen extends React.Component {
       <View style={styles.main}>
         <StatusBar backgroundColor="#145f9a" barStyle="light-content" />
         <Message text={this.state.message} />
+        <View style={styles.pickerrow}>
+          {this.renderEffectSelect(0)}
+          {this.renderEffectSelect(1)}
+        </View>
         <Joystic
           x={50} y={50}
           onValueChanged={(x,y) => {this.onEffect(x,y)}}
@@ -38,18 +42,62 @@ class JoysticScreen extends React.Component {
     );
   }
 
-  async onInit() {
-    console.log("... JoysticScreen.onInit");
+  renderEffectSelect(index) {
+    const pickerItems = this.state.effects.map(effect => (
+      <Picker.Item key={effect.id.toString()}
+        value={effect.id}
+        label={effect.title} />
+    ));
+    return (
+      <Picker style={styles.picker}
+        selectedValue={this.state.keys[index]}
+        onValueChange={(val) => this.onEffectSelect(index, val)}
+      >
+        {pickerItems}
+      </Picker>
+    );
   }
 
-  onEffect(val1, val2) {
-    console.log(`... JoysticScreen.onEffect ${val1}, ${val2}`);
+  async onInit() {
+    console.log(`... JoysticScreen.onInit`);
+    this.setState({initializing: true, message: "Getting effect bank..."});
+    this.timestamp = new Date();
+
+    try {
+      let eff = await this.remote.getEffects();
+      eff = eff.map((e,i) => ({id: i, title: e}))
+      this.setState({effects: eff})
+      console.log(`... JoysticScreen.onInit complete`);
+      this.setState({message: null, initializing: false});
+    } catch(err) {
+      console.log(`... TuningScreen.onInit failed: ${err}`);
+      this.setState({message: err, initializing: false});
+    }
+  }
+
+  onEffectSelect(index, key) {
+    this.setState(state => {
+      let k = state.keys; k[index]=key;
+      return {keys: k};
+    });
+  }
+
+  onEffect(val0, val1) {
+    this.remote.setEffects(
+      this.state.keys[0], val0,
+      this.state.keys[1], val1);
   }
 }
 
 const styles = StyleSheet.create({
   main: {
     marginBottom: 46
+  },
+  pickerrow: {
+    flexDirection: 'row'
+  },
+  picker: {
+    width: '50%'
   },
   joystic: {
     height: 100,
