@@ -48,13 +48,13 @@ class BankScreen extends React.Component {
   }
 
   async onInit() {
-    console.log("... BankScreen.onInit");
-    this.setState({initializing: true, message:"Getting sound bank..."});
+    console.log(`... BankScreen.onInit`);
+    this.setState({initializing: true, message: "Getting sound bank..."});
     try {
       // Check bank checksum
       const bank_cs = await this.remote.getBankCs();
       const local_cs = await AsyncStorage.getItem('@syntheon.bank.cs');
-      console.log("... BankScreen.onInit: bank_cs="+bank_cs+", local_cs="+local_cs);
+      console.log(`... BankScreen.onInit: bank_cs=${bank_cs}, local_cs=${local_cs}`);
       if (local_cs == bank_cs) {
         const bank = JSON.parse(await AsyncStorage.getItem('@syntheon.bank.json'));
         this.setState({bank: bank});
@@ -62,7 +62,7 @@ class BankScreen extends React.Component {
         let bank = await this.remote.getBank();
         bank = bank.map((d,i) => ({id:i, name:d}));
         bank[0].name = 'Bypass';
-        console.log("... BankScreen bank received: "+JSON.stringify(bank));
+        console.log(`... BankScreen bank received: ${bank}`);
         await AsyncStorage.setItem('@syntheon.bank.cs', bank_cs);
         await AsyncStorage.setItem('@syntheon.bank.json', JSON.stringify(bank));
         this.setState({bank: bank});
@@ -70,22 +70,22 @@ class BankScreen extends React.Component {
       // read preset from remote
       const preset = await this.remote.getPreset();
       this.setState({preset: preset});
-      console.log("... BankScreen init complete");
+      console.log(`... BankScreen init complete`);
       this.setState({message: null, initializing: false});
     } catch(err) {
-      console.log("... BankScreen.onInit failed: "+err);
-      this.setState({message: "Init error: "+err, initializing: false});
+      console.log(`... BankScreen.onInit failed: ${err}`);
+      this.setState({message: err, initializing: false});
     }
   }
 
   async onPreset(preset) {
-    console.log("... BankScreen.onPreset "+this.state.preset+" -> "+preset);
+    console.log(`.. BankScreen.onPreset ${this.state.preset} -> ${preset}`);
     try {
       await this.remote.setPreset(preset);
       this.setState({preset: preset});
     } catch(err) {
-      console.log("... BankScreen.onPreset failed: "+err);
-      this.setState({message: "Preset error: "+err});
+      console.log(`... BankScreen.onPreset failed: ${err}`);
+      this.setState({message: err});
     }
   }
 

@@ -56,19 +56,19 @@ class TuningScreen extends React.Component {
   }
 
   async onInit() {
-    console.log("... TuningScreen.onInit");
-    this.setState({initializing: true, message:"Getting effect bank..."});
+    console.log(`... TuningScreen.onInit`);
+    this.setState({initializing: true, message: "Getting effect bank..."});
     this.timestamp = new Date();
 
     try {
       let eff = await this.remote.getEffects();
       eff = eff.map((e,i) => ({id: i, title: e, value: i==0 ? 100 : 50}))
       this.setState({effects: eff})
-      console.log("... TuningScreen.onInit complete");
+      console.log(`... TuningScreen.onInit complete`);
       this.setState({message: null, initializing: false});
     } catch(err) {
-      console.log("... TuningScreen.onInit failed: "+err);
-      this.setState({message: "Init error: "+err, initializing: false});
+      console.log(`... TuningScreen.onInit failed: ${err}`);
+      this.setState({message: err, initializing: false});
     }
   }
 
@@ -76,7 +76,6 @@ class TuningScreen extends React.Component {
     let ts = new Date();
     if (ts - this.timestamp > 200 || force) {
       this.timestamp = ts;
-      console.log("... TuningScreen.onEffect "+key+", "+value);
       this.remote.setEffect(key, value);
     }
   }

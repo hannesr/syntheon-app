@@ -52,7 +52,7 @@ class ScanScreen extends React.Component {
     this.remote.startScan(
       (d) => this.onDeviceFound(d),
       (err) => {
-        console.log("... ScanScreen: scan failed: "+err);
+        console.log(`... ScanScreen: scan failed: ${err}`);
         this.setState({message: "Scan failed: "+err, scanning: false});
       }
     );
@@ -60,22 +60,22 @@ class ScanScreen extends React.Component {
 
   onDeviceFound(device) {
     if (this.state.devices.filter(d => d.id==device.id).length>0) return;
-    console.log("... ScanScreen: found device: "+JSON.stringify(device));
+    console.log(`... ScanScreen: found device: ${JSON.stringify(device)}`);
     this.setState((state) => ({devices: state.devices.concat([device])}));
   }
 
   async onDeviceSelect(device) {
-    console.log("... ScanScreen.onDeviceSelect: "+device.name);
+    console.log(`... ScanScreen.onDeviceSelect: ${device.name}`);
     this.remote.stopScan();
-    this.setState({message: "Connecting to "+device.name+"..."});
+    this.setState({message: `Connecting to ${device.name}...`});
     try {
       await this.remote.connect(device);
-      console.log("... ScanScreen: connected");
+      console.log(`... ScanScreen: connected`);
       this.setState({message:null, scanning: false});
       this.props.navigation.navigate('Main', {title: device.name});
     } catch(err) {
-      console.log("... ScanScreen: connection failed "+err);
-      this.setState({message: "Connection failed: "+err, scanning: false});
+      console.log(`... ScanScreen: connection failed: ${err}`);
+      this.setState({message: err, scanning: false});
     }
   }
 

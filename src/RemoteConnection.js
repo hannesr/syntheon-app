@@ -7,7 +7,7 @@ class RemoteConnection {
   static instance = null;
 
   static getInstance() {
-    console.log("... RemoteConnection.getInstance");
+    console.log(`... RemoteConnection.getInstance`);
     if (!RemoteConnection.instance) {
       if (__DEV__)
         RemoteConnection.instance = new FakeConnection();
@@ -22,7 +22,7 @@ class RemoteConnection {
 class BleConnection {
 
   constructor() {
-    console.log("... BleConnection: constructor");
+    console.log(`... BleConnection: constructor`);
     this.bleManager = new BleManager();
     this.device = null;
     this.SERVICE  = makeUuid('989e');
@@ -34,7 +34,7 @@ class BleConnection {
   }
 
   startScan(success, failure) {
-    console.log("... BleConnection: startScan");
+    console.log(`... BleConnection: startScan`);
     this.bleManager.startDeviceScan(null, null, (e,d)=>{
       if (d) {
         const device = {id:d.id, name:(d.name || d.id)};
@@ -46,12 +46,12 @@ class BleConnection {
   }
 
   stopScan() {
-    console.log("... BleConnection: stopScan");
+    console.log(`... BleConnection: stopScan`);
     this.bleManager.stopDeviceScan();
   }
 
   async connect(device) {
-    console.log("... BleConnection: connecting to "+device.id);
+    console.log(`... BleConnection: connecting to ${device.id}`);
     this.device = await this.bleManager.connectToDevice(device.id);
     await this.device.discoverAllServicesAndCharacteristics();
     //this.services = await this.device.services()
@@ -60,14 +60,14 @@ class BleConnection {
 
   async disconnect() {
     if (this.device) {
-      console.log("... BleConnection: disconnecting");
+      console.log(`... BleConnection: disconnecting`);
       await this.bleManager.cancelDeviceConnection(this.device.id);
       this.device = null;
     }
   }
 
   async getBankCs() {
-    console.log("... BleConnection.getBankCs");
+    console.log(`... BleConnection.getBankCs`);
     let characteristic = await this.bleManager.readCharacteristicForDevice(
       this.device.id, this.SERVICE, this.BANK_CS, this.transact());
     this.transaction = null;
@@ -76,7 +76,7 @@ class BleConnection {
   }
 
   async getBank() {
-    console.log("... BleConnection.getBank");
+    console.log(`... BleConnection.getBank`);
     let characteristic = await this.bleManager.readCharacteristicForDevice(
       this.device.id, this.SERVICE, this.BANK, this.transact());
     this.transaction = null;
@@ -85,7 +85,7 @@ class BleConnection {
   }
 
   async getPreset() {
-    console.log("... BleConnection.getPreset");
+    console.log(`... BleConnection.getPreset`);
     let characteristic = await this.bleManager.readCharacteristicForDevice(
       this.device.id, this.SERVICE, this.PRESET, this.transact());
     this.transaction = null;
@@ -94,7 +94,7 @@ class BleConnection {
   }
 
   async setPreset(preset) {
-    console.log("... BleConnection.setPreset "+preset);
+    console.log(`... BleConnection.setPreset ${preset}`);
     const buf = Buffer.from([preset]);
     await this.bleManager.writeCharacteristicWithResponseForDevice(
       this.device.id, this.SERVICE, this.PRESET, buf.toString('base64'), this.transact());
@@ -102,7 +102,7 @@ class BleConnection {
   }
 
   getEffects() {
-    console.log("... BleConnection: getEffects");
+    console.log(`... BleConnection: getEffects`);
     // TODO
   }
 
@@ -113,13 +113,14 @@ class BleConnection {
 
   transact() {
     this.counter += 1;
-    this.transaction = "syn-"+this.counter;
+    this.transaction = `syn-${this.counter}`;
     return this.transaction;
   }
 
   cancel() {
     if (this.transaction) {
       this.bleManager.cancelTransaction(this.transaction);
+      this.transaction = null;
     }
   }
 
@@ -133,55 +134,55 @@ function makeUuid(uuid) {
 class FakeConnection {
 
   constructor() {
-    console.log("... FakeConnection.constructor");
+    console.log(`... FakeConnection.constructor`);
     this.device = null;
     this.preset = 0;
   }
 
   startScan(success, failure) {
-    console.log("... FakeConnection: start scan");
+    console.log(`... FakeConnection: start scan`);
     const device = {id:"47283717", name:"Test device"};
     success(device);
   }
 
   stopScan() {
-    console.log("... FakeConnection: stop scan");
+    console.log(`... FakeConnection: stop scan`);
   }
 
   connect(device) {
-    console.log("... FakeConnection: connect "+device.id);
+    console.log(`... FakeConnection: connect ${device.id}`);
     this.device = device;
   }
 
   disconnect() {
     if (this.device) {
-      console.log("... FakeConnection: disconnect");
+      console.log(`... FakeConnection: disconnect`);
       this.device = null;
     }
   }
 
   getBankCs() {
-    console.log("... FakeConnection: getBankCs");
+    console.log(`... FakeConnection: getBankCs`);
     return JSON.stringify(this.getBank()).length.toString()
   }
 
   getBank() {
-    console.log("... FakeConnection: getBank");
+    console.log(`... FakeConnection: getBank`);
     return [null, "Buzz", "Snore", "Distort", "Noise"];
   }
 
   getPreset() {
-    console.log("... FakeConnection: getPreset");
+    console.log(`... FakeConnection: getPreset`);
     return this.preset;
   }
 
   setPreset(preset) {
-    console.log("... FakeConnection: setPreset");
+    console.log(`... FakeConnection: setPreset`);
     this.preset = preset;
   }
 
   getEffects() {
-    console.log("... FakeConnection: getEffects");
+    console.log(`... FakeConnection: getEffects`);
     return ["FX%", "Distort%", "Reverb depth", "Arpie freq"];
   }
 
