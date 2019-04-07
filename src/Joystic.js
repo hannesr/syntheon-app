@@ -37,7 +37,7 @@ class Joystic extends React.Component {
     if (locationY<0) locationY = 0;
     if (locationY>this.state.max) locationY = this.state.max;
     this.setState({x: locationX, y: locationY});
-    this.props.onValueChanged(100*locationX/this.state.max, 100*locationY/this.state.max);
+    this.props.onValueChanged(100*locationX/this.state.max, 100*locationY/this.state.max, mode===false);
   }
 }
 

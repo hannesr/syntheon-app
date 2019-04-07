@@ -36,7 +36,7 @@ class JoysticScreen extends React.Component {
         </View>
         <Joystic
           x={50} y={50}
-          onValueChanged={(x,y) => {this.onEffect(x,y)}}
+          onValueChanged={(x,y,f) => {this.onEffect(x,y,f)}}
         />
       </View>
     );
@@ -82,10 +82,14 @@ class JoysticScreen extends React.Component {
     });
   }
 
-  onEffect(val0, val1) {
-    this.remote.setEffects(
-      this.state.keys[0], val0,
-      this.state.keys[1], val1);
+  onEffect(val0, val1, force) {
+    let ts = new Date();
+    if (ts - this.timestamp > 200 || force) {
+      this.timestamp = ts;
+      this.remote.setEffects(
+        this.state.keys[0], Math.round(val0),
+        this.state.keys[1], Math.round(val1));
+    }
   }
 }
 
