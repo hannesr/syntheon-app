@@ -1,6 +1,7 @@
 
 import {BleManager, BleError, Device, State} from "react-native-ble-plx";
 import {Buffer} from 'buffer';
+import DeviceInfo from 'react-native-device-info';
 
 class RemoteConnection {
 
@@ -9,7 +10,7 @@ class RemoteConnection {
   static getInstance() {
     console.log(`... RemoteConnection.getInstance`);
     if (!RemoteConnection.instance) {
-      if (__DEV__)
+      if (DeviceInfo.isEmulator())
         RemoteConnection.instance = new FakeConnection();
       else
         RemoteConnection.instance = new BleConnection();
