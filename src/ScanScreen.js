@@ -75,7 +75,7 @@ class ScanScreen extends React.Component {
       this.props.navigation.navigate('Main', {title: device.name});
     } catch(err) {
       console.log(`... ScanScreen: connection failed: ${err}`);
-      this.setState({message: err, scanning: false});
+      this.setState({message: err.toString(), scanning: false});
     }
   }
 

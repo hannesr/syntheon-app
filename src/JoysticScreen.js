@@ -71,7 +71,7 @@ class JoysticScreen extends React.Component {
       this.setState({message: null, initializing: false});
     } catch(err) {
       console.log(`... TuningScreen.onInit failed: ${err}`);
-      this.setState({message: err, initializing: false});
+      this.setState({message: err.toString(), initializing: false});
     }
   }
 
