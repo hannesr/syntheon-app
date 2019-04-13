@@ -116,8 +116,9 @@ class BleConnection {
   }
 
   async setEffects() {
-    console.log(`... BleConnection: setEffects ${arguments}`);
-    const buf = Buffer.from(arguments);
+    const effects = Object.values(arguments);
+    console.log(`... BleConnection: setEffects ${effects}`);
+    const buf = Buffer.from(effects);
     await this.bleManager.writeCharacteristicWithoutResponseForDevice(
       this.device.id, this.SERVICE, this.RK_EFFECT, buf.toString('base64'));
   }
@@ -233,8 +234,9 @@ class FakeConnection {
   }
 
   setEffects() {
-    for (let i=0; i+1<arguments.length; i+=2) {
-      console.log(`... FakeConnection: setEffects ${arguments[i]}, ${arguments[i+1]}`);
+    const effects = Object.values(arguments);
+    for (let i=0; i+1<effects.length; i+=2) {
+      console.log(`... FakeConnection: setEffects ${effects[i]}, ${effects[i+1]}`);
     }
   }
 
