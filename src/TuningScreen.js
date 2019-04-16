@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {View, Text, StatusBar, FlatList, Slider, StyleSheet} from 'react-native';
 
 import Message from './Message'
+import BigSlider from './BigSlider'
 import RemoteConnection from './RemoteConnection';
 
 class TuningScreen extends React.Component {
@@ -35,20 +36,11 @@ class TuningScreen extends React.Component {
           extraData={this.state}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({item}) => (
-            <View style={styles.sliderframe}>
-              <Text style={styles.slidertext}>{item.title}</Text>
-              <Slider
-                minimumValue={0}
-                maximumValue={100}
-                step={1}
-                value={item.value}
-                minimumTrackTintColor='#2196F3'
-                maximumTrackTintColor='#c8deef'
-                thumbTintColor='#145f9a'
-                onValueChange={(value) => this.onEffect(item.id, value)}
-                onSlidingComplete={(value) => this.onEffect(item.id, value, true)}
-              />
-            </View>
+            <BigSlider
+              title={item.title}
+              value={item.value}
+              onChanged={(value) => this.remote.setEffects(item.id, value)}
+            />
           )}
         />
       </View>
@@ -58,12 +50,11 @@ class TuningScreen extends React.Component {
   async onInit() {
     console.log(`... TuningScreen.onInit`);
     this.setState({initializing: true, message: "Getting effect bank..."});
-    this.timestamp = new Date();
 
     try {
       let eff = await this.remote.getEffectsList();
-      eff = eff.map((e,i) => ({id: i, title: e, value: i==0 ? 100 : 50}))
-      this.setState({effects: eff})
+      eff = eff.map((e,i) => ({id: i, title: e, value: i==0 ? 100 : 50}));
+      this.setState({effects: eff});
       console.log(`... TuningScreen.onInit complete`);
       this.setState({message: null, initializing: false});
     } catch(err) {
@@ -72,29 +63,11 @@ class TuningScreen extends React.Component {
     }
   }
 
-  onEffect(key, value, force=false) {
-    let ts = new Date();
-    if (ts - this.timestamp > 200 || force) {
-      this.timestamp = ts;
-      this.remote.setEffects(key, value);
-    }
-  }
-
 }
 
 const styles = StyleSheet.create({
   main: {
     marginBottom: 46
-  },
-  sliderframe: {
-    marginTop: 8,
-    marginLeft: 8,
-    marginRight: 8,
-    marginBottom: 8
-  },
-  slidertext: {
-    marginLeft: 8,
-    color: '#145f9a'
   }
 });
 
