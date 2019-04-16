@@ -34,6 +34,7 @@ class BleConnection {
     this.RK_EFFECT  = makeUuid('9d1a');
     this.ZN_ONOFF   = makeUuid('9e01');
     this.ZN_EFFECT  = makeUuid('9e04');
+    this.ZN_VOLUME  = makeUuid('9e07');
     this.counter = 0;
     this.transaction = null;
   }
@@ -157,6 +158,23 @@ class BleConnection {
     this.transaction = null;
   }
 
+  async getSynthVolume() {
+    console.log(`... BleConnection: getSynthVolume`);
+    let characteristic = await this.bleManager.readCharacteristicForDevice(
+      this.device.id, this.SERVICE, this.ZN_VOLUME, this.transact());
+    this.transaction = null;
+    const buf = Buffer.from(characteristic.value, 'base64');
+    return buf[0];
+  }
+
+  async setSynthVolume(volume) {
+    console.log(`... BleConnection: setSynthVolume ${volume}`);
+    const buf = Buffer.from([volume]);
+    await this.bleManager.writeCharacteristicWithResponseForDevice(
+      this.device.id, this.SERVICE, this.ZN_VOLUME, buf.toString('base64'), this.transact());
+    this.transaction = null;
+  }
+
   transact() {
     this.counter += 1;
     this.transaction = `syn-${this.counter}`;
@@ -258,6 +276,16 @@ class FakeConnection {
   setSynthEffect(status) {
     console.log(`... FakeConnection: setSynthEffect ${status}`);
     this.synthEffect = status;
+  }
+
+  getSynthVolume() {
+    console.log(`... FakeConnection: getSynthVolume`);
+    return this.synthVolume;
+  }
+
+  setSynthVolume(volume) {
+    console.log(`... FakeConnection: setSynthVolume ${volume}`);
+    this.synthVolume = volume;
   }
 
   cancel() {
