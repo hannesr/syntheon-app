@@ -29,6 +29,7 @@ class BleConnection {
     this.SERVICE    = makeUuid('989e');
     this.RK_BANK_CS = makeUuid('9b43');
     this.RK_BANK    = makeUuid('9b96');
+    this.RK_PRESET_ON = makeUuid('9d10');
     this.RK_PRESET  = makeUuid('9d12');
     this.RK_EFFECT_LIST = makeUuid('9d19');
     this.RK_EFFECT  = makeUuid('9d1a');
@@ -88,6 +89,23 @@ class BleConnection {
     this.transaction = null;
     const buf = Buffer.from(characteristic.value, 'base64');
     return JSON.parse(buf.toString());
+  }
+
+  async getPresetOn() {
+    console.log(`... BleConnection.getPresetOn`);
+    let characteristic = await this.bleManager.readCharacteristicForDevice(
+      this.device.id, this.SERVICE, this.RK_PRESET_ON, this.transact());
+    this.transaction = null;
+    const buf = Buffer.from(characteristic.value, 'base64');
+    return buf[0] ? true : false;
+  }
+
+  async setPresetOn(status) {
+    console.log(`... BleConnection.setPresetOn ${status}`);
+    const buf = Buffer.from([status ? 1 : 0]);
+    await this.bleManager.writeCharacteristicWithResponseForDevice(
+      this.device.id, this.SERVICE, this.RK_PRESET_ON, buf.toString('base64'), this.transact());
+    this.transaction = null;
   }
 
   async getPreset() {
@@ -234,6 +252,16 @@ class FakeConnection {
   getBank() {
     console.log(`... FakeConnection: getBank`);
     return [null, "Buzz", "Snore", "Distort", "Noise"];
+  }
+
+  getPresetOn() {
+    console.log(`... FakeConnection: getPresetOn`);
+    return this.presetOn;
+  }
+
+  setPresetOn(status) {
+    console.log(`... FakeConnection: setPresetOn`);
+    this.presetOn = status;
   }
 
   getPreset() {

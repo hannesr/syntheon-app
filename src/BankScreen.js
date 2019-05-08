@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, StatusBar, FlatList, StyleSheet} from 'react-native';
+import {View, Text, StatusBar, FlatList, Switch, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
 import Message from './Message'
@@ -11,7 +11,7 @@ class BankScreen extends React.Component {
   constructor(props) {
     console.log("... BankScreen.constructor");
     super(props);
-    this.state = {message:null, initializing:false, bank:[], preset:0};
+    this.state = {message:null, initializing:false, bank:[], presetStatus:false, preset:0};
     this.remote = RemoteConnection.getInstance();
   }
 
@@ -31,6 +31,13 @@ class BankScreen extends React.Component {
       <View style={styles.main}>
         <StatusBar backgroundColor="#145f9a" barStyle="light-content" />
         <Message text={this.state.message} spinner={this.state.initializing} />
+        <View style={styles.row}>
+          <Text style={styles.label}>Synth ON</Text>
+          <Switch style={styles.switch}
+            value={this.state.presetStatus}
+            thumbColor='#2196F3' trackColor='#c8deef'
+            onValueChange={(val) => this.onPresetStatus(val)} />
+        </View>
         <FlatList
           data={this.state.bank}
           extraData={this.state}
@@ -68,8 +75,9 @@ class BankScreen extends React.Component {
         this.setState({bank: bank});
       }
       // read preset from remote
+      const presetStatus = await this.remote.getPresetOn();
       const preset = await this.remote.getPreset();
-      this.setState({preset: preset});
+      this.setState({presetStatus: presetStatus, preset: preset});
       console.log(`... BankScreen init complete`);
       this.setState({message: null, initializing: false});
     } catch(err) {
@@ -78,8 +86,19 @@ class BankScreen extends React.Component {
     }
   }
 
+  async onPresetStatus(status) {
+    console.log(`... BankScreen.onPresetStatus ${status}`);
+    try {
+      await this.remote.setPresetOn(status);
+      this.setState({presetStatus: status});
+    } catch(err) {
+      console.log(`... BankScreen.onPresetStatus failed: ${err}`);
+      this.setState({message: err.toString()});
+    }
+  }
+
   async onPreset(preset) {
-    console.log(`.. BankScreen.onPreset ${this.state.preset} -> ${preset}`);
+    console.log(`... BankScreen.onPreset ${this.state.preset} -> ${preset}`);
     try {
       await this.remote.setPreset(preset);
       this.setState({preset: preset});
@@ -94,6 +113,20 @@ class BankScreen extends React.Component {
 const styles = StyleSheet.create({
   main: {
     marginBottom: 46
+  },
+  row: {
+    flexDirection: 'row',
+    marginLeft: 16,
+    marginRight: 16,
+    marginTop: 16,
+    marginBottom: 16,
+    alignItems: 'center'
+  },
+  label: {
+    marginLeft: 16,
+  },
+  switch: {
+    marginLeft: 4,
   }
 });
 
