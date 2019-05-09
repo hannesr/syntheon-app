@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, StatusBar, Switch, StyleSheet} from 'react-native';
+import {View, Text, StatusBar, FlatList, Switch, StyleSheet} from 'react-native';
 
 import Message from './Message'
 import BigSlider from './BigSlider'
@@ -10,7 +10,7 @@ class SynthScreen extends React.Component {
   constructor(props) {
     console.log(`... SynthScreen.constructor`);
     super(props);
-    this.state = {message:null, initializing: false};
+    this.state = {message:null, initializing: false, synthControls: []};
     this.remote = RemoteConnection.getInstance();
   }
 
@@ -42,10 +42,17 @@ class SynthScreen extends React.Component {
             thumbColor='#2196F3' trackColor='#c8deef'
             onValueChange={(val) => this.setSynthEffect(val)} />
         </View>
-        <BigSlider
-          title="Volume"
-          value={this.state.synthVolume}
-          onChanged={(value) => this.remote.setSynthVolume(value)}
+        <FlatList
+          data={this.state.synthControls}
+          extraData={this.state}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({item}) => (
+            <BigSlider
+              title={item.title}
+              value={item.value}
+              onChanged={(value) => this.remote.setSynthControls(item.id, value)}
+            />
+          )}
         />
       </View>
     );
@@ -59,8 +66,9 @@ class SynthScreen extends React.Component {
       this.setState({synthStatus: synthStatus})
       const synthEffect = await this.remote.getSynthEffect();
       this.setState({synthEffect: synthEffect})
-      const synthVolume = await this.remote.getSynthVolume();
-      this.setState({synthVolume: synthVolume})
+      let ctrls = await this.remote.getSynthControlList();
+      ctrls = ctrls.map((e,i) => ({id: i, title: e, value: 100}));
+      this.setState({synthControls: ctrls})
       console.log(`... SynthScreen.onInit complete`);
       this.setState({message: null, initializing: false});
     } catch(err) {
@@ -77,11 +85,6 @@ class SynthScreen extends React.Component {
   setSynthEffect(status) {
     this.remote.setSynthEffect(status);
     this.setState({synthEffect: status})
-  }
-
-  setSynthVolume(volume) {
-    this.remote.setSynthVolume(volume);
-    this.setState({synthVolume: volume})
   }
 
 }
