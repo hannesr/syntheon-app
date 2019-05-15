@@ -1,9 +1,10 @@
 import React, {Component} from 'react';
-import {View, Text, StatusBar, FlatList, Switch, StyleSheet} from 'react-native';
+import {View, Text, StatusBar, FlatList, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
 import Message from './Message'
 import BigButton from './BigButton';
+import BigSwitch from './BigSwitch';
 import RemoteConnection from './RemoteConnection';
 
 class BankScreen extends React.Component {
@@ -31,13 +32,11 @@ class BankScreen extends React.Component {
       <View style={styles.main}>
         <StatusBar backgroundColor="#145f9a" barStyle="light-content" />
         <Message text={this.state.message} spinner={this.state.initializing} />
-        <View style={styles.row}>
-          <Text style={styles.label}>Synth ON</Text>
-          <Switch style={styles.switch}
-            value={this.state.presetStatus}
-            thumbColor='#2196F3' trackColor='#c8deef'
-            onValueChange={(val) => this.onPresetStatus(val)} />
-        </View>
+        <BigSwitch
+          label="Effect ON"
+          value={this.state.presetStatus}
+          onChanged={(val) => this.onPresetStatus(val)}
+        />
         <FlatList
           data={this.state.bank}
           extraData={this.state}
@@ -113,20 +112,6 @@ class BankScreen extends React.Component {
 const styles = StyleSheet.create({
   main: {
     marginBottom: 46
-  },
-  row: {
-    flexDirection: 'row',
-    marginLeft: 16,
-    marginRight: 16,
-    marginTop: 16,
-    marginBottom: 16,
-    alignItems: 'center'
-  },
-  label: {
-    marginLeft: 16,
-  },
-  switch: {
-    marginLeft: 4,
   }
 });
 

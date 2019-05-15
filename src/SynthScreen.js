@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import {View, Text, StatusBar, FlatList, Switch, StyleSheet} from 'react-native';
+import {View, Text, StatusBar, FlatList, StyleSheet} from 'react-native';
 
 import Message from './Message'
 import BigSlider from './BigSlider'
+import BigSwitch from './BigSwitch'
 import RemoteConnection from './RemoteConnection';
 
 class SynthScreen extends React.Component {
@@ -31,16 +32,16 @@ class SynthScreen extends React.Component {
         <StatusBar backgroundColor="#145f9a" barStyle="light-content" />
         <Message text={this.state.message} spinner={this.state.initializing} />
         <View style={styles.row}>
-          <Text style={styles.label}>Synth ON</Text>
-          <Switch style={styles.switch}
+          <BigSwitch
+            label="Synth ON"
             value={this.state.synthStatus}
-            thumbColor='#2196F3' trackColor='#c8deef'
-            onValueChange={(val) => this.setSynthStatus(val)} />
-          <Text style={styles.label}>Synth effect</Text>
-          <Switch style={styles.switch}
+            onChanged={(val) => this.setSynthStatus(val)}
+          />
+          <BigSwitch
+            label="Synth effect"
             value={this.state.synthEffect}
-            thumbColor='#2196F3' trackColor='#c8deef'
-            onValueChange={(val) => this.setSynthEffect(val)} />
+            onChanged={(val) => this.setSynthEffect(val)}
+          />
         </View>
         <FlatList
           data={this.state.synthControls}
@@ -94,18 +95,7 @@ const styles = StyleSheet.create({
     marginBottom: 46
   },
   row: {
-    flexDirection: 'row',
-    marginLeft: 16,
-    marginRight: 16,
-    marginTop: 16,
-    marginBottom: 16,
-    alignItems: 'center'
-  },
-  label: {
-    marginLeft: 16,
-  },
-  switch: {
-    marginLeft: 4,
+    flexDirection: 'row'
   }
 });
 
