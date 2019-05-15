@@ -39,7 +39,7 @@ class TuningScreen extends React.Component {
             <BigSlider
               title={item.title}
               value={item.value}
-              onChanged={(value) => this.remote.setEffects(item.id, value)}
+              onChanged={(value) => this.remote.setEffectControls(item.id, value)}
             />
           )}
         />
@@ -52,7 +52,7 @@ class TuningScreen extends React.Component {
     this.setState({initializing: true, message: "Getting effect bank..."});
 
     try {
-      let eff = await this.remote.getEffectsList();
+      let eff = await this.remote.getEffectControlList();
       eff = eff.map((e,i) => ({id: i, title: e, value: i==0 ? 100 : 50}));
       this.setState({effects: eff});
       console.log(`... TuningScreen.onInit complete`);

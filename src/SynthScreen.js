@@ -34,8 +34,8 @@ class SynthScreen extends React.Component {
         <View style={styles.row}>
           <BigSwitch
             label="Synth ON"
-            value={this.state.synthStatus}
-            onChanged={(val) => this.setSynthStatus(val)}
+            value={this.state.synthService}
+            onChanged={(val) => this.setSynthService(val)}
           />
           <BigSwitch
             label="Synth effect"
@@ -63,9 +63,9 @@ class SynthScreen extends React.Component {
     console.log(`... SynthScreen.onInit`);
     this.setState({initializing: true, message: "Getting synth status..."});
     try {
-      const synthStatus = await this.remote.getSynthStatus();
-      this.setState({synthStatus: synthStatus})
-      const synthEffect = await this.remote.getSynthEffect();
+      const synthService = await this.remote.getSynthServiceState();
+      this.setState({synthService: synthService})
+      const synthEffect = await this.remote.getSynthEffectState();
       this.setState({synthEffect: synthEffect})
       let ctrls = await this.remote.getSynthControlList();
       ctrls = ctrls.map((e,i) => ({id: i, title: e, value: 100}));
@@ -78,14 +78,14 @@ class SynthScreen extends React.Component {
     }
   }
 
-  setSynthStatus(status) {
-    this.remote.setSynthStatus(status);
-    this.setState({synthStatus: status})
+  setSynthService(state) {
+    this.remote.setSynthServiceState(state);
+    this.setState({synthService: state})
   }
 
-  setSynthEffect(status) {
-    this.remote.setSynthEffect(status);
-    this.setState({synthEffect: status})
+  setSynthEffect(state) {
+    this.remote.setSynthEffectState(state);
+    this.setState({synthEffect: state})
   }
 
 }

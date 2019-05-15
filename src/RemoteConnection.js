@@ -26,23 +26,23 @@ class BleConnection {
     console.log(`... BleConnection: constructor`);
     this.bleManager = new BleManager();
     this.device = null;
-    this.SERVICE    = makeUuid('989e');
-    this.RK_BANK_CS = makeUuid('9b43');
-    this.RK_BANK    = makeUuid('9b96');
-    this.RK_PRESET_ON = makeUuid('9d10');
-    this.RK_PRESET  = makeUuid('9d12');
-    this.RK_CONTROL_LIST = makeUuid('9d19');
-    this.RK_CONTROLS = makeUuid('9d1a');
-    this.ZN_ONOFF   = makeUuid('9e01');
-    this.ZN_EFFECT  = makeUuid('9e04');
-    this.ZN_CONTROL_LIST = makeUuid('9e08');
-    this.ZN_CONTROLS = makeUuid('9e0a');
+    this.SERVICE              = makeUuid('989e');
+    this.EFFECT_BANK_CS       = makeUuid('9b43');
+    this.EFFECT_BANK          = makeUuid('9b96');
+    this.EFFECT_STATE         = makeUuid('9d10');
+    this.EFFECT_PRESET        = makeUuid('9d12');
+    this.EFFECT_CONTROL_LIST  = makeUuid('9d19');
+    this.EFFECT_CONTROL       = makeUuid('9d1a');
+    this.SYNTH_SERVICE_STATE  = makeUuid('9e01');
+    this.SYNTH_EFFECT_STATE   = makeUuid('9e04');
+    this.SYNTH_CONTROL_LIST   = makeUuid('9e08');
+    this.SYNTH_CONTROL        = makeUuid('9e0a');
     this.counter = 0;
     this.transaction = null;
   }
 
   startScan(success, failure) {
-    console.log(`... BleConnection: startScan`);
+    console.log(`... BleConnection.startScan`);
     this.bleManager.startDeviceScan(null, null, (e,d)=>{
       if (d) {
         const device = {id:d.id, name:(d.name || d.id)};
@@ -54,12 +54,12 @@ class BleConnection {
   }
 
   stopScan() {
-    console.log(`... BleConnection: stopScan`);
+    console.log(`... BleConnection.stopScan`);
     this.bleManager.stopDeviceScan();
   }
 
   async connect(device) {
-    console.log(`... BleConnection: connecting to ${device.id}`);
+    console.log(`... BleConnection.connect ${device.id}`);
     this.device = await this.bleManager.connectToDevice(device.id);
     await this.device.discoverAllServicesAndCharacteristics();
     //this.services = await this.device.services()
@@ -68,119 +68,119 @@ class BleConnection {
 
   async disconnect() {
     if (this.device) {
-      console.log(`... BleConnection: disconnecting`);
+      console.log(`... BleConnection: disconnect`);
       await this.bleManager.cancelDeviceConnection(this.device.id);
       this.device = null;
     }
   }
 
-  async getBankCs() {
-    console.log(`... BleConnection.getBankCs`);
+  async getEffectBankCs() {
+    console.log(`... BleConnection.getEffectBankCs`);
     let characteristic = await this.bleManager.readCharacteristicForDevice(
-      this.device.id, this.SERVICE, this.RK_BANK_CS, this.transact());
+      this.device.id, this.SERVICE, this.EFFECT_BANK_CS, this.transact());
     this.transaction = null;
     const buf = Buffer.from(characteristic.value, 'base64');
     return buf.toString();
   }
 
-  async getBank() {
-    console.log(`... BleConnection.getBank`);
+  async getEffectBank() {
+    console.log(`... BleConnection.getEffectBank`);
     let characteristic = await this.bleManager.readCharacteristicForDevice(
-      this.device.id, this.SERVICE, this.RK_BANK, this.transact());
+      this.device.id, this.SERVICE, this.EFFECT_BANK, this.transact());
     this.transaction = null;
     const buf = Buffer.from(characteristic.value, 'base64');
     return JSON.parse(buf.toString());
   }
 
-  async getPresetOn() {
-    console.log(`... BleConnection.getPresetOn`);
+  async getEffectState() {
+    console.log(`... BleConnection.getEffectState`);
     let characteristic = await this.bleManager.readCharacteristicForDevice(
-      this.device.id, this.SERVICE, this.RK_PRESET_ON, this.transact());
+      this.device.id, this.SERVICE, this.EFFECT_STATE, this.transact());
     this.transaction = null;
     const buf = Buffer.from(characteristic.value, 'base64');
     return buf[0] ? true : false;
   }
 
-  async setPresetOn(status) {
-    console.log(`... BleConnection.setPresetOn ${status}`);
+  async setEffectState(status) {
+    console.log(`... BleConnection.setEffectState ${status}`);
     const buf = Buffer.from([status ? 1 : 0]);
     await this.bleManager.writeCharacteristicWithResponseForDevice(
-      this.device.id, this.SERVICE, this.RK_PRESET_ON, buf.toString('base64'), this.transact());
+      this.device.id, this.SERVICE, this.EFFECT_STATE, buf.toString('base64'), this.transact());
     this.transaction = null;
   }
 
-  async getPreset() {
-    console.log(`... BleConnection.getPreset`);
+  async getEffectPreset() {
+    console.log(`... BleConnection.getEffectPreset`);
     let characteristic = await this.bleManager.readCharacteristicForDevice(
-      this.device.id, this.SERVICE, this.RK_PRESET, this.transact());
+      this.device.id, this.SERVICE, this.EFFECT_PRESET, this.transact());
     this.transaction = null;
     const buf = Buffer.from(characteristic.value, 'base64');
     return buf[0];
   }
 
-  async setPreset(preset) {
-    console.log(`... BleConnection.setPreset ${preset}`);
+  async setEffectPreset(preset) {
+    console.log(`... BleConnection.setEffectPreset ${preset}`);
     const buf = Buffer.from([preset]);
     await this.bleManager.writeCharacteristicWithResponseForDevice(
-      this.device.id, this.SERVICE, this.RK_PRESET, buf.toString('base64'), this.transact());
+      this.device.id, this.SERVICE, this.EFFECT_PRESET, buf.toString('base64'), this.transact());
     this.transaction = null;
   }
 
-  async getEffectsList() {
-    console.log(`... BleConnection: getEffectsList`);
+  async getEffectControlList() {
+    console.log(`... BleConnection.getEffectControlList`);
     let characteristic = await this.bleManager.readCharacteristicForDevice(
-      this.device.id, this.SERVICE, this.RK_CONTROL_LIST, this.transact());
+      this.device.id, this.SERVICE, this.EFFECT_CONTROL_LIST, this.transact());
     this.transaction = null;
     const buf = Buffer.from(characteristic.value, 'base64');
     return JSON.parse(buf.toString());
   }
 
-  async setEffects() {
+  async setEffectControls() {
     const effects = Object.values(arguments);
-    console.log(`... BleConnection: setEffects ${effects}`);
+    console.log(`... BleConnection.setEffectControls ${effects}`);
     const buf = Buffer.from(effects);
     await this.bleManager.writeCharacteristicWithoutResponseForDevice(
-      this.device.id, this.SERVICE, this.RK_CONTROLS, buf.toString('base64'));
+      this.device.id, this.SERVICE, this.EFFECT_CONTROL, buf.toString('base64'));
   }
 
-  async getSynthStatus() {
-    console.log(`... BleConnection: getSynthStatus`);
+  async getSynthServiceState() {
+    console.log(`... BleConnection.getSynthServiceState`);
     let characteristic = await this.bleManager.readCharacteristicForDevice(
-      this.device.id, this.SERVICE, this.ZN_ONOFF, this.transact());
+      this.device.id, this.SERVICE, this.SYNTH_SERVICE_STATE, this.transact());
     this.transaction = null;
     const buf = Buffer.from(characteristic.value, 'base64');
     return buf[0] ? true : false;
   }
 
-  async setSynthStatus(status) {
-    console.log(`... BleConnection: setSynthStatus ${status}`);
+  async setSynthServiceState(status) {
+    console.log(`... BleConnection.setSynthServiceState ${status}`);
     const buf = Buffer.from([status ? 1 : 0]);
     await this.bleManager.writeCharacteristicWithResponseForDevice(
-      this.device.id, this.SERVICE, this.ZN_ONOFF, buf.toString('base64'), this.transact());
+      this.device.id, this.SERVICE, this.SYNTH_SERVICE_STATE, buf.toString('base64'), this.transact());
     this.transaction = null;
   }
 
-  async getSynthEffect() {
-    console.log(`... BleConnection: getSynthEffect`);
+  async getSynthEffectState() {
+    console.log(`... BleConnection.getSynthEffectState`);
     let characteristic = await this.bleManager.readCharacteristicForDevice(
-      this.device.id, this.SERVICE, this.ZN_EFFECT, this.transact());
+      this.device.id, this.SERVICE, this.SYNTH_EFFECT_STATE, this.transact());
     this.transaction = null;
     const buf = Buffer.from(characteristic.value, 'base64');
     return buf[0] ? true : false;
   }
 
-  async setSynthEffect(status) {
-    console.log(`... BleConnection: setSynthEffect ${status}`);
+  async setSynthEffectState(status) {
+    console.log(`... BleConnection.setSynthEffectState ${status}`);
     const buf = Buffer.from([status ? 1 : 0]);
     await this.bleManager.writeCharacteristicWithResponseForDevice(
-      this.device.id, this.SERVICE, this.ZN_EFFECT, buf.toString('base64'), this.transact());
+      this.device.id, this.SERVICE, this.SYNTH_EFFECT_STATE, buf.toString('base64'), this.transact());
     this.transaction = null;
   }
 
   async getSynthControlList() {
-    console.log(`... BleConnection: getSynthControlList`);
+    console.log(`... BleConnection.getSynthControlList`);
     let characteristic = await this.bleManager.readCharacteristicForDevice(
-      this.device.id, this.SERVICE, this.ZN_CONTROL_LIST, this.transact());
+      this.device.id, this.SERVICE, this.SYNTH_CONTROL_LIST, this.transact());
     this.transaction = null;
     const buf = Buffer.from(characteristic.value, 'base64');
     return JSON.parse(buf.toString());
@@ -188,10 +188,10 @@ class BleConnection {
 
   async setSynthControls() {
     const controls = Object.values(arguments);
-    console.log(`... BleConnection: setSynthControl ${controls}`);
+    console.log(`... BleConnection.setSynthControl ${controls}`);
     const buf = Buffer.from(controls);
     await this.bleManager.writeCharacteristicWithoutResponseForDevice(
-      this.device.id, this.SERVICE, this.ZN_CONTROLS, buf.toString('base64'));
+      this.device.id, this.SERVICE, this.SYNTH_CONTROL, buf.toString('base64'));
   }
 
   transact() {
@@ -224,98 +224,98 @@ class FakeConnection {
   }
 
   startScan(success, failure) {
-    console.log(`... FakeConnection: start scan`);
+    console.log(`... FakeConnection.startScan`);
     const device = {id:"47283717", name:"Test device"};
     success(device);
   }
 
   stopScan() {
-    console.log(`... FakeConnection: stop scan`);
+    console.log(`... FakeConnection.stopScan`);
   }
 
   connect(device) {
-    console.log(`... FakeConnection: connect ${device.id}`);
+    console.log(`... FakeConnection.connect ${device.id}`);
     this.device = device;
   }
 
   disconnect() {
     if (this.device) {
-      console.log(`... FakeConnection: disconnect`);
+      console.log(`... FakeConnection.disconnect`);
       this.device = null;
     }
   }
 
-  getBankCs() {
-    console.log(`... FakeConnection: getBankCs`);
-    return JSON.stringify(this.getBank()).length.toString()
+  getEffectBankCs() {
+    console.log(`... FakeConnection.getEffectBankCs`);
+    return JSON.stringify(this.getEffectBank()).length.toString()
   }
 
-  getBank() {
-    console.log(`... FakeConnection: getBank`);
+  getEffectBank() {
+    console.log(`... FakeConnection.getEffectBank`);
     return [null, "Buzz", "Snore", "Distort", "Noise"];
   }
 
-  getPresetOn() {
-    console.log(`... FakeConnection: getPresetOn`);
+  getEffectState() {
+    console.log(`... FakeConnection.getEffectState`);
     return this.presetOn;
   }
 
-  setPresetOn(status) {
-    console.log(`... FakeConnection: setPresetOn`);
+  setEffectState(status) {
+    console.log(`... FakeConnection.setEffectState`);
     this.presetOn = status;
   }
 
-  getPreset() {
-    console.log(`... FakeConnection: getPreset`);
+  getEffectPreset() {
+    console.log(`... FakeConnection.getEffectPreset`);
     return this.preset;
   }
 
-  setPreset(preset) {
-    console.log(`... FakeConnection: setPreset`);
+  setEffectPreset(preset) {
+    console.log(`... FakeConnection.setEffectPreset`);
     this.preset = preset;
   }
 
-  getEffectsList() {
-    console.log(`... FakeConnection: getEffectsList`);
+  getEffectControlList() {
+    console.log(`... FakeConnection.getEffectControlList`);
     return ["FX%", "Distort%", "Reverb depth", "Arpie freq"];
   }
 
-  setEffects() {
+  setEffectControls() {
     const effects = Object.values(arguments);
     for (let i=0; i+1<effects.length; i+=2) {
-      console.log(`... FakeConnection: setEffects ${effects[i]}, ${effects[i+1]}`);
+      console.log(`... FakeConnection.setEffectControls ${effects[i]}, ${effects[i+1]}`);
     }
   }
 
-  getSynthStatus() {
-    console.log(`... FakeConnection: getSynthStatus`);
+  getSynthServiceState() {
+    console.log(`... FakeConnection.getSynthServiceState`);
     return this.synthStatus;
   }
 
-  setSynthStatus(status) {
-    console.log(`... FakeConnection: setSynthStatus ${status}`);
-    this.synthStatus = status;
+  setSynthServiceState(state) {
+    console.log(`... FakeConnection.setSynthServiceState ${state}`);
+    this.synthStatus = state;
   }
 
-  getSynthEffect() {
-    console.log(`... FakeConnection: getSynthEffect`);
+  getSynthEffectState() {
+    console.log(`... FakeConnection.getSynthEffectState`);
     return this.synthEffect;
   }
 
-  setSynthEffect(status) {
-    console.log(`... FakeConnection: setSynthEffect ${status}`);
-    this.synthEffect = status;
+  setSynthEffectState(state) {
+    console.log(`... FakeConnection.setSynthEffectState ${state}`);
+    this.synthEffect = state;
   }
 
   getSynthControlList() {
-    console.log(`... FakeConnection: getSynthControlList`);
+    console.log(`... FakeConnection.getSynthControlList`);
     return ["Volume", "Modulation"];
   }
 
   setSynthControls() {
     const controls = Object.values(arguments);
     for (let i=0; i+1<controls.length; i+=2) {
-      console.log(`... FakeConnection: setSynthControl ${controls[i]}, ${controls[i+1]}`);
+      console.log(`... FakeConnection.setSynthControls ${controls[i]}, ${controls[i+1]}`);
     }
   }
 

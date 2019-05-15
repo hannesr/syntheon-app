@@ -64,13 +64,13 @@ class JoysticScreen extends React.Component {
     this.timestamp = new Date();
 
     try {
-      let eff = await this.remote.getEffectsList();
+      let eff = await this.remote.getEffectControlList();
       eff = eff.map((e,i) => ({id: i, title: e}))
       this.setState({effects: eff})
       console.log(`... JoysticScreen.onInit complete`);
       this.setState({message: null, initializing: false});
     } catch(err) {
-      console.log(`... TuningScreen.onInit failed: ${err}`);
+      console.log(`... JoysticScreen.onInit failed: ${err}`);
       this.setState({message: err.toString(), initializing: false});
     }
   }
@@ -86,7 +86,7 @@ class JoysticScreen extends React.Component {
     let ts = new Date();
     if (ts - this.timestamp > 200 || force) {
       this.timestamp = ts;
-      this.remote.setEffects(
+      this.remote.setEffectControls(
         this.state.keys[0], Math.round(val0),
         this.state.keys[1], Math.round(val1));
     }
