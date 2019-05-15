@@ -33,8 +33,11 @@ class BleConnection {
     this.EFFECT_PRESET        = makeUuid('9d12');
     this.EFFECT_CONTROL_LIST  = makeUuid('9d19');
     this.EFFECT_CONTROL       = makeUuid('9d1a');
+    this.SYNTH_BANK_CS        = makeUuid('9e12');
+    this.SYNTH_BANK           = makeUuid('9e14');
     this.SYNTH_SERVICE_STATE  = makeUuid('9e01');
     this.SYNTH_EFFECT_STATE   = makeUuid('9e04');
+    this.SYNTH_PRESET         = makeUuid('9e17');
     this.SYNTH_CONTROL_LIST   = makeUuid('9e08');
     this.SYNTH_CONTROL        = makeUuid('9e0a');
     this.counter = 0;
@@ -143,6 +146,25 @@ class BleConnection {
       this.device.id, this.SERVICE, this.EFFECT_CONTROL, buf.toString('base64'));
   }
 
+  async getSynthBankCs() {
+    console.log(`... BleConnection.getSynthBankCs`);
+    let characteristic = await this.bleManager.readCharacteristicForDevice(
+      this.device.id, this.SERVICE, this.SYNTH_BANK_CS, this.transact());
+    this.transaction = null;
+    const buf = Buffer.from(characteristic.value, 'base64');
+    return buf.toString();
+  }
+
+  async getSynthBank() {
+    console.log(`... BleConnection.getSynthBank`);
+    let characteristic = await this.bleManager.readCharacteristicForDevice(
+      this.device.id, this.SERVICE, this.SYNTH_BANK, this.transact());
+    this.transaction = null;
+    const buf = Buffer.from(characteristic.value, 'base64');
+    return JSON.parse(buf.toString());
+  }
+
+
   async getSynthServiceState() {
     console.log(`... BleConnection.getSynthServiceState`);
     let characteristic = await this.bleManager.readCharacteristicForDevice(
@@ -174,6 +196,14 @@ class BleConnection {
     const buf = Buffer.from([status ? 1 : 0]);
     await this.bleManager.writeCharacteristicWithResponseForDevice(
       this.device.id, this.SERVICE, this.SYNTH_EFFECT_STATE, buf.toString('base64'), this.transact());
+    this.transaction = null;
+  }
+
+  async setSynthPreset(preset) {
+    console.log(`... BleConnection.setSynthPreset ${preset}`);
+    const buf = Buffer.from([preset]);
+    await this.bleManager.writeCharacteristicWithResponseForDevice(
+      this.device.id, this.SERVICE, this.SYNTH_PRESET, buf.toString('base64'), this.transact());
     this.transaction = null;
   }
 
@@ -287,6 +317,16 @@ class FakeConnection {
     }
   }
 
+  getSynthBankCs() {
+    console.log(`... FakeConnection.getSynthBankCs`);
+    return JSON.stringify(this.getSynthBank()).length.toString()
+  }
+
+  getSynthBank() {
+    console.log(`... FakeConnection.getSynthBank`);
+    return [null, "Piano", "Organ", "Space woo woo", "Cling"];
+  }
+
   getSynthServiceState() {
     console.log(`... FakeConnection.getSynthServiceState`);
     return this.synthStatus;
@@ -305,6 +345,11 @@ class FakeConnection {
   setSynthEffectState(state) {
     console.log(`... FakeConnection.setSynthEffectState ${state}`);
     this.synthEffect = state;
+  }
+
+  setSynthPreset(preset) {
+    console.log(`... FakeConnection.setSynthPreset ${preset}`);
+    this.synthPreset = preset
   }
 
   getSynthControlList() {
