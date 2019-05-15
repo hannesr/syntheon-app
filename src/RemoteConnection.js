@@ -252,7 +252,7 @@ class FakeConnection {
 
   getEffectBank() {
     console.log(`... FakeConnection.getEffectBank`);
-    return [null, "Buzz", "Snore", "Distort", "Noise"];
+    return ["Buzz", "Snore", "Distort", "Noise"];
   }
 
   getEffectState() {

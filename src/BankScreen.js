@@ -27,7 +27,6 @@ class BankScreen extends React.Component {
   }
 
   render() {
-    // TODO: Try to get Slider between Bypass and effects
     return (
       <View style={styles.main}>
         <StatusBar backgroundColor="#145f9a" barStyle="light-content" />
@@ -67,7 +66,6 @@ class BankScreen extends React.Component {
       } else {
         let bank = await this.remote.getEffectBank();
         bank = bank.map((d,i) => ({id:i, name:d}));
-        bank[0].name = 'Bypass';
         console.log(`... BankScreen bank received: ${bank}`);
         await AsyncStorage.setItem('@syntheon.bank.cs', bank_cs);
         await AsyncStorage.setItem('@syntheon.bank.json', JSON.stringify(bank));
