@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, StatusBar, FlatList, StyleSheet} from 'react-native';
+import {View, Text, StatusBar, ScrollView, FlatList, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
 import Message from './Message'
@@ -33,6 +33,7 @@ class SynthScreen extends React.Component {
       <View style={styles.main}>
         <StatusBar backgroundColor="#145f9a" barStyle="light-content" />
         <Message text={this.state.message} spinner={this.state.initializing} />
+        <ScrollView>
         <View style={styles.row}>
           <BigSwitch
             label="Synth ON"
@@ -68,6 +69,7 @@ class SynthScreen extends React.Component {
             />
           )}
         />
+        </ScrollView>
       </View>
     );
   }

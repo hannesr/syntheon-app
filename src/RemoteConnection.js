@@ -282,7 +282,7 @@ class FakeConnection {
 
   getEffectBank() {
     console.log(`... FakeConnection.getEffectBank`);
-    return ["Buzz", "Snore", "Distort", "Noise"];
+    return ["Buzz", "Snore", "Distort", "Reverb", "Echo", "Wah Wah", "Delay", "Flanger", "Noise"];
   }
 
   getEffectState() {
@@ -324,7 +324,7 @@ class FakeConnection {
 
   getSynthBank() {
     console.log(`... FakeConnection.getSynthBank`);
-    return [null, "Piano", "Organ", "Space woo woo", "Cling"];
+    return ["Piano", "Organ", "Violin", "Tuba", "Space woo woo", "Cling", "Aah"];
   }
 
   getSynthServiceState() {

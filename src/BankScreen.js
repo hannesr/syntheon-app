@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {View, Text, StatusBar, FlatList, StyleSheet} from 'react-native';
+import {View, Text, StatusBar, ScrollView, FlatList, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 
 import Message from './Message'
@@ -31,11 +31,14 @@ class BankScreen extends React.Component {
       <View style={styles.main}>
         <StatusBar backgroundColor="#145f9a" barStyle="light-content" />
         <Message text={this.state.message} spinner={this.state.initializing} />
-        <BigSwitch
-          label="Effect ON"
-          value={this.state.presetStatus}
-          onChanged={(val) => this.onPresetStatus(val)}
-        />
+        <ScrollView>
+        <View style={styles.row}>
+          <BigSwitch
+            label="Effect ON"
+            value={this.state.presetStatus}
+            onChanged={(val) => this.onPresetStatus(val)}
+          />
+        </View>
         <FlatList
           data={this.state.bank}
           extraData={this.state}
@@ -48,6 +51,7 @@ class BankScreen extends React.Component {
             />
           )}
         />
+        </ScrollView>
       </View>
     );
   }
@@ -110,6 +114,9 @@ class BankScreen extends React.Component {
 const styles = StyleSheet.create({
   main: {
     marginBottom: 46
+  },
+  row: {
+    flexDirection: 'row'
   }
 });
 
