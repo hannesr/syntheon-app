@@ -1,16 +1,19 @@
 import React, {Component} from 'react';
 import {View, Text, StatusBar, FlatList, Slider, StyleSheet} from 'react-native';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
 import Message from './Message'
 import BigSlider from './BigSlider'
 import RemoteConnection from './RemoteConnection';
+import Actions from './actions/Actions';
 
 class TuningScreen extends React.Component {
 
   constructor(props) {
     console.log("... TuningScreen.constructor");
     super(props);
-    this.state = {message:null, initializing: false, effects:[]};
+    this.state = {effects:[]};
     this.remote = RemoteConnection.getInstance();
   }
 
@@ -49,17 +52,18 @@ class TuningScreen extends React.Component {
 
   async onInit() {
     console.log(`... TuningScreen.onInit`);
-    this.setState({initializing: true, message: "Getting effect bank..."});
+    this.props.message("Getting effect bank...", true);
 
     try {
       let eff = await this.remote.getEffectControlList();
       eff = eff.map((e,i) => ({id: i, title: e, value: i==0 ? 100 : 50}));
       this.setState({effects: eff});
       console.log(`... TuningScreen.onInit complete`);
-      this.setState({message: null, initializing: false});
+      this.props.message(null);
     } catch(err) {
       console.log(`... TuningScreen.onInit failed: ${err}`);
       this.setState({message: err.toString(), initializing: false});
+      this.props.message(err.toString());
     }
   }
 
@@ -71,4 +75,8 @@ const styles = StyleSheet.create({
   }
 });
 
-export default TuningScreen;
+const mapDispatchToProps = (dispatch) => {
+  return bindActionCreators(Actions, dispatch)
+}
+
+export default connect(null, mapDispatchToProps)(TuningScreen)

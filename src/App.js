@@ -1,12 +1,17 @@
 import React from 'react';
 import {Platform, StyleSheet, Text, View} from 'react-native';
 import {createStackNavigator, createBottomTabNavigator, createAppContainer} from "react-navigation";
+import {createStore, applyMiddleware} from 'redux'
+import thunkMiddleware from 'redux-thunk'
+import {createLogger} from 'redux-logger'
+import {Provider} from 'react-redux'
 
 import ScanScreen from './ScanScreen';
 import BankScreen from './BankScreen';
 import TuningScreen from './TuningScreen';
 import JoysticScreen from './JoysticScreen';
 import SynthScreen from './SynthScreen';
+import appReducer from './state/Reducers'
 
 const MainNavigator = createBottomTabNavigator(
   {
@@ -40,4 +45,18 @@ const App = createAppContainer(
   })
 );
 
-export default App;
+const loggerMiddleware = createLogger({colors: {}})
+const store = createStore(
+  appReducer,
+  applyMiddleware(thunkMiddleware, loggerMiddleware)
+);
+
+const AppContainer = () => {
+  return (
+    <Provider store={store}>
+      <App />
+    </Provider>
+  )
+}
+
+export default AppContainer;

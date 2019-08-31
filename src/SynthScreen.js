@@ -1,19 +1,22 @@
 import React, {Component} from 'react';
 import {View, Text, StatusBar, ScrollView, FlatList, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
 import Message from './Message'
 import BigSlider from './BigSlider'
 import BigSwitch from './BigSwitch'
 import BigButton from './BigButton'
 import RemoteConnection from './RemoteConnection';
+import Actions from './actions/Actions';
 
 class SynthScreen extends React.Component {
 
   constructor(props) {
     console.log(`... SynthScreen.constructor`);
     super(props);
-    this.state = {message:null, initializing: false, synthControls: [], bank: []};
+    this.state = {synthControls: [], bank: []};
     this.remote = RemoteConnection.getInstance();
   }
 
@@ -76,7 +79,7 @@ class SynthScreen extends React.Component {
 
   async onInit() {
     console.log(`... SynthScreen.onInit`);
-    this.setState({initializing: true, message: "Getting synth status..."});
+    this.props.message("Getting synth status...", true);
     try {
       // Check bank checksum
       const bank_cs = await this.remote.getSynthBankCs();
@@ -102,10 +105,10 @@ class SynthScreen extends React.Component {
       ctrls = ctrls.map((e,i) => ({id: i, title: e, value: 100}));
       this.setState({synthControls: ctrls})
       console.log(`... SynthScreen.onInit complete`);
-      this.setState({message: null, initializing: false});
+      this.props.message(null);
     } catch(err) {
       console.log(`... SynthScreen.onInit failed: ${err}`);
-      this.setState({message: err.toString(), initializing: false});
+      this.props.message(err.toString());
     }
   }
 
@@ -125,7 +128,7 @@ class SynthScreen extends React.Component {
       await this.remote.setSynthPreset(preset);
     } catch(err) {
       console.log(`... SynthScreen.onPreset failed: ${err}`);
-      this.setState({message: err.toString()});
+      this.props.message(err.toString());
     }
   }
 
@@ -140,4 +143,8 @@ const styles = StyleSheet.create({
   }
 });
 
-export default SynthScreen;
+const mapDispatchToProps = (dispatch) => {
+  return bindActionCreators(Actions, dispatch)
+}
+
+export default connect(null, mapDispatchToProps)(SynthScreen)

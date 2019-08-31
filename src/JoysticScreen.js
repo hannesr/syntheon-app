@@ -1,16 +1,19 @@
 import React, {Component} from 'react';
 import {View, Text, StatusBar, Picker, StyleSheet} from 'react-native';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
 import Message from './Message'
 import Joystic from './Joystic'
 import RemoteConnection from './RemoteConnection';
+import Actions from './actions/Actions';
 
 class JoysticScreen extends React.Component {
 
   constructor(props) {
     console.log("... JoysticScreen.constructor");
     super(props);
-    this.state = {message:null, initializing: false, effects: [], keys: [1, 2]};
+    this.state = {effects: [], keys: [1, 2]};
     this.remote = RemoteConnection.getInstance();
   }
 
@@ -60,7 +63,7 @@ class JoysticScreen extends React.Component {
 
   async onInit() {
     console.log(`... JoysticScreen.onInit`);
-    this.setState({initializing: true, message: "Getting effect bank..."});
+    this.props.message("Getting effect bank...", true);
     this.timestamp = new Date();
 
     try {
@@ -68,10 +71,10 @@ class JoysticScreen extends React.Component {
       eff = eff.map((e,i) => ({id: i, title: e}))
       this.setState({effects: eff})
       console.log(`... JoysticScreen.onInit complete`);
-      this.setState({message: null, initializing: false});
+      this.props.message(null);
     } catch(err) {
       console.log(`... JoysticScreen.onInit failed: ${err}`);
-      this.setState({message: err.toString(), initializing: false});
+      this.props.message(err.toString());
     }
   }
 
@@ -113,4 +116,8 @@ const styles = StyleSheet.create({
   }
 });
 
-export default JoysticScreen;
+const mapDispatchToProps = (dispatch) => {
+  return bindActionCreators(Actions, dispatch)
+}
+
+export default connect(null, mapDispatchToProps)(JoysticScreen)

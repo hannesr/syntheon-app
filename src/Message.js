@@ -1,5 +1,6 @@
 import React from 'react';
 import {View, Text, ActivityIndicator, StyleSheet} from 'react-native';
+import { connect } from 'react-redux'
 
 class Message extends React.Component {
 
@@ -28,8 +29,11 @@ const styles = StyleSheet.create({
   }
 });
 
-//flex: 1,
-//flexDirection: 'row',
-//justifyContent: 'space-between',
+const mapStateToProps = (state, prop) => {
+  return {
+    text: state.message,
+    spinner: state.spinner
+  }
+}
 
-export default Message;
+export default connect(mapStateToProps)(Message)

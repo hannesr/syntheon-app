@@ -1,25 +1,28 @@
 import React from 'react';
 import {View, Text, StatusBar, FlatList, StyleSheet} from 'react-native';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
 import Message from './Message'
 import BigButton from './BigButton';
-import RemoteConnection from './RemoteConnection';
+//import RemoteConnection from './RemoteConnection';
+import Actions from './actions/Actions';
 
 class ScanScreen extends React.Component {
 
   constructor(props) {
     console.log("... ScanScreen.constructor");
     super(props);
-    this.state = {message:null, scanning:false, devices: []};
-    this.remote = RemoteConnection.getInstance();
+    this.state = {devices: []};
   }
 
   componentDidMount() {
     console.log("... ScanScreen.componentDidMount");
-    this.onScan();
+    this.props.message("Scanning devices...", true);
+    this.props.startScan();
     this.props.navigation.addListener('didFocus', () => {
       console.log("... ScanScreen.didFocus");
-      this.remote.disconnect();
+      this.props.disconnectDevice();
     })
   }
 
@@ -31,9 +34,9 @@ class ScanScreen extends React.Component {
     return (
       <View style={styles.main}>
         <StatusBar backgroundColor="#145f9a" barStyle="light-content" />
-        <Message text={this.state.message} spinner={this.state.scanning} />
+        <Message />
         <FlatList
-          data={this.state.devices}
+          data={this.props.devices}
           keyExtractor={(item) => item.id}
           renderItem={({item}) => (
             <BigButton
@@ -46,36 +49,18 @@ class ScanScreen extends React.Component {
     );
   }
 
-  onScan() {
-    this.setState({message: "Scanning devices..."});
-    this.setState({scanning: true});
-    this.remote.startScan(
-      (d) => this.onDeviceFound(d),
-      (err) => {
-        console.log(`... ScanScreen: scan failed: ${err}`);
-        this.setState({message: "Scan failed: "+err, scanning: false});
-      }
-    );
-  }
-
-  onDeviceFound(device) {
-    if (this.state.devices.filter(d => d.id==device.id).length>0) return;
-    console.log(`... ScanScreen: found device: ${JSON.stringify(device)}`);
-    this.setState((state) => ({devices: state.devices.concat([device])}));
-  }
-
-  async onDeviceSelect(device) {
+  onDeviceSelect(device) {
     console.log(`... ScanScreen.onDeviceSelect: ${device.name}`);
-    this.remote.stopScan();
-    this.setState({message: `Connecting to ${device.name}...`});
+    this.props.stopScan();
+    this.props.message(`Connecting to ${device.name}...`);
     try {
-      await this.remote.connect(device);
+      this.props.connectDevice(device);
       console.log(`... ScanScreen: connected`);
-      this.setState({message:null, scanning: false});
+      this.props.message(null);
       this.props.navigation.navigate('Main', {title: device.name});
     } catch(err) {
       console.log(`... ScanScreen: connection failed: ${err}`);
-      this.setState({message: err.toString(), scanning: false});
+      this.props.message(err.toString());
     }
   }
 
@@ -87,4 +72,13 @@ const styles = StyleSheet.create({
   }
 });
 
-export default ScanScreen;
+const mapStateToProps = (state) => {
+  return {
+    devices: state.devices,
+  }
+}
+const mapDispatchToProps = (dispatch) => {
+  return bindActionCreators(Actions, dispatch)
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ScanScreen)

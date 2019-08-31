@@ -263,101 +263,101 @@ class FakeConnection {
     console.log(`... FakeConnection.stopScan`);
   }
 
-  connect(device) {
+  async connect(device) {
     console.log(`... FakeConnection.connect ${device.id}`);
     this.device = device;
   }
 
-  disconnect() {
+  async disconnect() {
     if (this.device) {
       console.log(`... FakeConnection.disconnect`);
       this.device = null;
     }
   }
 
-  getEffectBankCs() {
+  async getEffectBankCs() {
     console.log(`... FakeConnection.getEffectBankCs`);
     return JSON.stringify(this.getEffectBank()).length.toString()
   }
 
-  getEffectBank() {
+  async getEffectBank() {
     console.log(`... FakeConnection.getEffectBank`);
     return ["Buzz", "Snore", "Distort", "Reverb", "Echo", "Wah Wah", "Delay", "Flanger", "Noise"];
   }
 
-  getEffectState() {
+  async getEffectState() {
     console.log(`... FakeConnection.getEffectState`);
     return this.presetOn;
   }
 
-  setEffectState(status) {
+  async setEffectState(status) {
     console.log(`... FakeConnection.setEffectState`);
     this.presetOn = status;
   }
 
-  getEffectPreset() {
+  async getEffectPreset() {
     console.log(`... FakeConnection.getEffectPreset`);
     return this.preset;
   }
 
-  setEffectPreset(preset) {
+  async setEffectPreset(preset) {
     console.log(`... FakeConnection.setEffectPreset`);
     this.preset = preset;
   }
 
-  getEffectControlList() {
+  async getEffectControlList() {
     console.log(`... FakeConnection.getEffectControlList`);
     return ["FX%", "Distort%", "Reverb depth", "Arpie freq"];
   }
 
-  setEffectControls() {
+  async setEffectControls() {
     const effects = Object.values(arguments);
     for (let i=0; i+1<effects.length; i+=2) {
       console.log(`... FakeConnection.setEffectControls ${effects[i]}, ${effects[i+1]}`);
     }
   }
 
-  getSynthBankCs() {
+  async getSynthBankCs() {
     console.log(`... FakeConnection.getSynthBankCs`);
     return JSON.stringify(this.getSynthBank()).length.toString()
   }
 
-  getSynthBank() {
+  async getSynthBank() {
     console.log(`... FakeConnection.getSynthBank`);
     return ["Piano", "Organ", "Violin", "Tuba", "Space woo woo", "Cling", "Aah"];
   }
 
-  getSynthServiceState() {
+  async getSynthServiceState() {
     console.log(`... FakeConnection.getSynthServiceState`);
     return this.synthStatus;
   }
 
-  setSynthServiceState(state) {
+  async setSynthServiceState(state) {
     console.log(`... FakeConnection.setSynthServiceState ${state}`);
     this.synthStatus = state;
   }
 
-  getSynthEffectState() {
+  async getSynthEffectState() {
     console.log(`... FakeConnection.getSynthEffectState`);
     return this.synthEffect;
   }
 
-  setSynthEffectState(state) {
+  async setSynthEffectState(state) {
     console.log(`... FakeConnection.setSynthEffectState ${state}`);
     this.synthEffect = state;
   }
 
-  setSynthPreset(preset) {
+  async setSynthPreset(preset) {
     console.log(`... FakeConnection.setSynthPreset ${preset}`);
     this.synthPreset = preset
   }
 
-  getSynthControlList() {
+  async getSynthControlList() {
     console.log(`... FakeConnection.getSynthControlList`);
     return ["Volume", "Modulation"];
   }
 
-  setSynthControls() {
+  async setSynthControls() {
     const controls = Object.values(arguments);
     for (let i=0; i+1<controls.length; i+=2) {
       console.log(`... FakeConnection.setSynthControls ${controls[i]}, ${controls[i+1]}`);

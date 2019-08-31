@@ -1,18 +1,21 @@
 import React, {Component} from 'react';
 import {View, Text, StatusBar, ScrollView, FlatList, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
 import Message from './Message'
 import BigButton from './BigButton';
 import BigSwitch from './BigSwitch';
 import RemoteConnection from './RemoteConnection';
+import Actions from './actions/Actions';
 
 class BankScreen extends React.Component {
 
   constructor(props) {
     console.log("... BankScreen.constructor");
     super(props);
-    this.state = {message:null, initializing:false, bank:[], presetStatus:false, preset:0};
+    this.state = {bank:[], presetStatus:false, preset:0};
     this.remote = RemoteConnection.getInstance();
   }
 
@@ -30,7 +33,7 @@ class BankScreen extends React.Component {
     return (
       <View style={styles.main}>
         <StatusBar backgroundColor="#145f9a" barStyle="light-content" />
-        <Message text={this.state.message} spinner={this.state.initializing} />
+        <Message />
         <ScrollView>
         <View style={styles.row}>
           <BigSwitch
@@ -58,7 +61,7 @@ class BankScreen extends React.Component {
 
   async onInit() {
     console.log(`... BankScreen.onInit`);
-    this.setState({initializing: true, message: "Getting sound bank..."});
+    this.props.message("Getting sound bank...", true);
     try {
       // Check bank checksum
       const bank_cs = await this.remote.getEffectBankCs();
@@ -80,10 +83,10 @@ class BankScreen extends React.Component {
       const preset = await this.remote.getEffectPreset();
       this.setState({presetStatus: presetStatus, preset: preset});
       console.log(`... BankScreen init complete`);
-      this.setState({message: null, initializing: false});
+      this.props.message(null);
     } catch(err) {
       console.log(`... BankScreen.onInit failed: ${err}`);
-      this.setState({message: err.toString(), initializing: false});
+      this.props.message(err.toString());
     }
   }
 
@@ -94,7 +97,7 @@ class BankScreen extends React.Component {
       this.setState({presetStatus: status});
     } catch(err) {
       console.log(`... BankScreen.onEffectState failed: ${err}`);
-      this.setState({message: err.toString()});
+      this.props.message(err.toString());
     }
   }
 
@@ -105,7 +108,7 @@ class BankScreen extends React.Component {
       this.setState({preset: preset});
     } catch(err) {
       console.log(`... BankScreen.onPreset failed: ${err}`);
-      this.setState({message: err.toString()});
+      this.props.message(err.toString());
     }
   }
 
@@ -120,4 +123,8 @@ const styles = StyleSheet.create({
   }
 });
 
-export default BankScreen;
+const mapDispatchToProps = (dispatch) => {
+  return bindActionCreators(Actions, dispatch)
+}
+
+export default connect(null, mapDispatchToProps)(BankScreen)
