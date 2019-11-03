@@ -8,67 +8,41 @@ import Message from './Message'
 import BigSlider from './BigSlider'
 import BigSwitch from './BigSwitch'
 import BigButton from './BigButton'
-import RemoteConnection from './RemoteConnection';
 import Actions from './actions/Actions';
 
 class SynthScreen extends React.Component {
 
   constructor(props) {
-    console.log(`... SynthScreen.constructor`);
     super(props);
-    this.state = {synthControls: [], bank: []};
-    this.remote = RemoteConnection.getInstance();
-  }
-
-  componentDidMount() {
-    console.log(`... SynthScreen.componentDidMount`);
-    this.onInit();
-  }
-
-  componentWillUnmount() {
-    console.log(`... SynthScreen.componentWillUnmount`);
-    this.remote.cancel();
-    this.remote.disconnect();
   }
 
   render() {
     return (
       <View style={styles.main}>
         <StatusBar backgroundColor="#145f9a" barStyle="light-content" />
-        <Message text={this.state.message} spinner={this.state.initializing} />
+        <Message />
         <ScrollView>
-        <View style={styles.row}>
-          <BigSwitch
-            label="Synth ON"
-            value={this.state.synthService}
-            onChanged={(val) => this.onSynthService(val)}
-          />
-          <BigSwitch
-            label="Synth effect"
-            value={this.state.synthEffect}
-            onChanged={(val) => this.onSynthEffect(val)}
-          />
-        </View>
         <FlatList
-          data={this.state.synthControls}
-          extraData={this.state}
-          keyExtractor={(item) => item.id.toString()}
+          data={this.props.controls}
+          extraData={this.props}
+          keyExtractor={(item) => item.id}
           renderItem={({item}) => (
-            <BigSlider
-              title={item.title}
+            <BigSwitch
+              label={item.name}
               value={item.value}
-              onChanged={(value) => this.remote.setSynthControls(item.id, value)}
+              onChanged={(val) => this.props.setControl('zynaddsubfx', item.id, val)}
             />
           )}
         />
         <FlatList
-          data={this.state.bank}
-          extraData={this.state}
-          keyExtractor={(item) => item.id.toString()}
+          data={this.props.programs}
+          extraData={this.props}
+          keyExtractor={(item) => item.id}
           renderItem={({item}) => (
             <BigButton
               title={item.name}
-              onPress={() => this.onPreset(item.id)}
+              active={this.props.program==item.id}
+              onPress={() => this.props.setProgram('zynaddsubfx', item.id)}
             />
           )}
         />
@@ -77,74 +51,24 @@ class SynthScreen extends React.Component {
     );
   }
 
-  async onInit() {
-    console.log(`... SynthScreen.onInit`);
-    this.props.message("Getting synth status...", true);
-    try {
-      // Check bank checksum
-      const bank_cs = await this.remote.getSynthBankCs();
-      const local_cs = await AsyncStorage.getItem('@syntheon.synth.bank.cs');
-      console.log(`... SynthScreen.onInit: bank_cs=${bank_cs}, local_cs=${local_cs}`);
-      if (local_cs == bank_cs) {
-        const bank = JSON.parse(await AsyncStorage.getItem('@syntheon.synth.bank.json'));
-        this.setState({bank: bank});
-      } else {
-        let bank = await this.remote.getSynthBank();
-        bank = bank.map((d,i) => ({id:i, name:d}));
-        console.log(`... SynthScreen bank received: ${bank}`);
-        await AsyncStorage.setItem('@syntheon.synth.bank.cs', bank_cs);
-        await AsyncStorage.setItem('@syntheon.synth.bank.json', JSON.stringify(bank));
-        this.setState({bank: bank});
-      }
-      // read states from remote
-      const synthService = await this.remote.getSynthServiceState();
-      this.setState({synthService: synthService})
-      const synthEffect = await this.remote.getSynthEffectState();
-      this.setState({synthEffect: synthEffect})
-      let ctrls = await this.remote.getSynthControlList();
-      ctrls = ctrls.map((e,i) => ({id: i, title: e, value: 100}));
-      this.setState({synthControls: ctrls})
-      console.log(`... SynthScreen.onInit complete`);
-      this.props.message(null);
-    } catch(err) {
-      console.log(`... SynthScreen.onInit failed: ${err}`);
-      this.props.message(err.toString());
-    }
-  }
-
-  onSynthService(state) {
-    this.remote.setSynthServiceState(state);
-    this.setState({synthService: state})
-  }
-
-  onSynthEffect(state) {
-    this.remote.setSynthEffectState(state);
-    this.setState({synthEffect: state})
-  }
-
-  async onPreset(preset) {
-    console.log(`... SynthScreen.onPreset ${preset}`);
-    try {
-      await this.remote.setSynthPreset(preset);
-    } catch(err) {
-      console.log(`... SynthScreen.onPreset failed: ${err}`);
-      this.props.message(err.toString());
-    }
-  }
-
 }
 
 const styles = StyleSheet.create({
   main: {
     marginBottom: 46
-  },
-  row: {
-    flexDirection: 'row'
   }
 });
+
+const mapStateToProps = (state, prop) => {
+  return {
+    programs: state.modules.zynaddsubfx.programs,
+    program: state.modules.zynaddsubfx.program,
+    controls: state.modules.zynaddsubfx.controls,
+  }
+}
 
 const mapDispatchToProps = (dispatch) => {
   return bindActionCreators(Actions, dispatch)
 }
 
-export default connect(null, mapDispatchToProps)(SynthScreen)
+export default connect(mapStateToProps, mapDispatchToProps)(SynthScreen)

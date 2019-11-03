@@ -92,7 +92,9 @@ class BleConnection {
       this.device.id, this.SERVICE, this.EFFECT_BANK, this.transact());
     this.transaction = null;
     const buf = Buffer.from(characteristic.value, 'base64');
-    return JSON.parse(buf.toString());
+    let bank = JSON.parse(buf.toString());
+    bank = bank.map((e,i) => ({id:i.toString(), name:e}));
+    return bank;
   }
 
   async getEffectState() {
@@ -123,7 +125,7 @@ class BleConnection {
 
   async setEffectPreset(preset) {
     console.log(`... BleConnection.setEffectPreset ${preset}`);
-    const buf = Buffer.from([preset]);
+    const buf = Buffer.from([parseInt(preset)]);
     await this.bleManager.writeCharacteristicWithResponseForDevice(
       this.device.id, this.SERVICE, this.EFFECT_PRESET, buf.toString('base64'), this.transact());
     this.transaction = null;
@@ -161,7 +163,9 @@ class BleConnection {
       this.device.id, this.SERVICE, this.SYNTH_BANK, this.transact());
     this.transaction = null;
     const buf = Buffer.from(characteristic.value, 'base64');
-    return JSON.parse(buf.toString());
+    let bank = JSON.parse(buf.toString());
+    bank = bank.map((e,i) => ({id:i.toString(), name:e}));
+    return bank;
   }
 
 
@@ -199,9 +203,18 @@ class BleConnection {
     this.transaction = null;
   }
 
+  async getSynthPreset() {
+    console.log(`... BleConnection.getSynthPreset`);
+    let characteristic = await this.bleManager.readCharacteristicForDevice(
+      this.device.id, this.SERVICE, this.SYNTH_PRESET, this.transact());
+    this.transaction = null;
+    const buf = Buffer.from(characteristic.value, 'base64');
+    return buf[0];
+  }
+
   async setSynthPreset(preset) {
     console.log(`... BleConnection.setSynthPreset ${preset}`);
-    const buf = Buffer.from([preset]);
+    const buf = Buffer.from([parseInt(preset)]);
     await this.bleManager.writeCharacteristicWithResponseForDevice(
       this.device.id, this.SERVICE, this.SYNTH_PRESET, buf.toString('base64'), this.transact());
     this.transaction = null;
@@ -251,6 +264,7 @@ class FakeConnection {
     this.preset = 0;
     this.synthStatus = false;
     this.synthEffect = false;
+    this.presetStatus = false;
   }
 
   startScan(success, failure) {
@@ -282,17 +296,19 @@ class FakeConnection {
 
   async getEffectBank() {
     console.log(`... FakeConnection.getEffectBank`);
-    return ["Buzz", "Snore", "Distort", "Reverb", "Echo", "Wah Wah", "Delay", "Flanger", "Noise"];
+    let bank = ["Buzz", "Snore", "Distort", "Reverb", "Echo", "Wah Wah", "Delay", "Flanger", "Noise"];
+    bank = bank.map((e,i) => ({id:i.toString(), name:e}));
+    return bank;
   }
 
   async getEffectState() {
     console.log(`... FakeConnection.getEffectState`);
-    return this.presetOn;
+    return this.presetStatus;
   }
 
   async setEffectState(status) {
     console.log(`... FakeConnection.setEffectState`);
-    this.presetOn = status;
+    this.presetStatus = status;
   }
 
   async getEffectPreset() {
@@ -324,7 +340,9 @@ class FakeConnection {
 
   async getSynthBank() {
     console.log(`... FakeConnection.getSynthBank`);
-    return ["Piano", "Organ", "Violin", "Tuba", "Space woo woo", "Cling", "Aah"];
+    let bank = ["Piano", "Organ", "Violin", "Tuba", "Space woo woo", "Cling", "Aah"];
+    bank = bank.map((e,i) => ({id:i.toString(), name:e}));
+    return bank;
   }
 
   async getSynthServiceState() {
@@ -345,6 +363,11 @@ class FakeConnection {
   async setSynthEffectState(state) {
     console.log(`... FakeConnection.setSynthEffectState ${state}`);
     this.synthEffect = state;
+  }
+
+  async getSynthPreset() {
+    console.log(`... FakeConnection.getSynthPreset`);
+    return this.synthPreset;
   }
 
   async setSynthPreset(preset) {

@@ -16,8 +16,8 @@ import appReducer from './state/Reducers'
 const MainNavigator = createBottomTabNavigator(
   {
     Bank: BankScreen,
-    Tuning: TuningScreen,
-    Joystic: JoysticScreen,
+//    Tuning: TuningScreen,
+//    Joystic: JoysticScreen,
     Synth: SynthScreen
   }, {
     initialRouteName: "Bank",
